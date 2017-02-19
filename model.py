@@ -268,9 +268,13 @@ def myTrainGenerator(batch_size):
                 angle = np.random.uniform(0,1)
                 pixels = int((TRANSLATION_X_RANGE * angle)/TRANSLATION_Y_RANGE)
                 if (batch_y[i] > 0):
+                    # If steering angle is tending to the right, translate image to the right
+                    # and decrease right steering to recover and be on the track
                     batch_X[i] = horizontal_translation(batch_X[i], pixels)
                     batch_y[i] = batch_y[i] - angle
                 else:
+                    # If steering angle is tending to the left, translate image to the left
+                    # and decrease left steering to recover and be on the track
                     batch_X[i] = horizontal_translation(batch_X[i], -pixels)
                     batch_y[i] = batch_y[i] + angle
             i = i + 1
