@@ -103,7 +103,10 @@ I use `ReLU` layers to introduce nonlinearity.
 * I used `Mean Squared Error` as a loss metric. It seemed like the right choice as the goal is to minimize the steering angle predictions.
 * The training and validation loss seemed to reduce rapidly in the initial 2 epochs of batch size 64 over the entire sample set, to about 0.0443 training and about 0.0202 validation.
     However, the weights on the model wouldn't be able to predict angles for all the scenarios of driving, very well. I ended up using 256 samples over 7 epochs and ended up with 0.0413 training loss and 0.0178 validation loss.
-    Anymore and the loss wouldn't be lowered very much. It is also important to ensure the training loss doesn't go very close to 0 as it could signify overfitting.
+
+![network_training_summary](https://cloud.githubusercontent.com/assets/16203244/23098491/1bff0d14-f603-11e6-8149-7351531a838c.png)
+
+* Anymore and the loss wouldn't be lowered very much. It is also important to ensure the training loss doesn't go very close to 0 as it could signify overfitting.
 * `Adam` optimizer was used and thus a learning rate wasn't tuned manually. The learning rate is modified inversely proportional to the square of the gradients accumulated via an exponentially weighted moving average. 
 * It is seen as a variant on the combination of RMSProp and momentum.
 * Since it includes bias corrections for the first and second order moments to account for their initializations at the origin, it is a popular choice. 
@@ -166,20 +169,24 @@ The steering angles were dithered by a static offset on left/right camerae image
 
 Example of images I used are as follows:
 
-**Recovery: Extreme Left of Lane**
+**Sample Recovery from extreme left of lane**
 
-![right_2017_02_09_10_16_20_158]()
+* The sharp turns needed more training data to train the network around these corners. Here's a recovery from extreme left of the lane.
+
+![right_2017_02_09_10_16_20_158](https://cloud.githubusercontent.com/assets/16203244/23098492/1bffa4fe-f603-11e6-8732-d7b692fc0e2a.jpg)
 
 **Drive Straight: Center of Lane**
 
-![center_2016_12_01_13_31_14_295]()
+![center_2016_12_01_13_31_14_295](https://cloud.githubusercontent.com/assets/16203244/23098488/1bfdc616-f603-11e6-9136-e520fd359c96.jpg)
 
-**Recovery: Extreme Right of Lane**
+**Sample Recovery from extreme right of lane**
 
-![left_2017_02_09_10_16_15_383]()
+* Here's a similar recovery from extreme right of the lane on the same turn. The network trainied with such data helped converge well around sharp turns.
+
+![left_2017_02_09_10_16_15_383](https://cloud.githubusercontent.com/assets/16203244/23098490/1bfe2a16-f603-11e6-8a53-7c1c46bdd8f5.jpg)
 
 ## Data augmentation for balancing the set
-* Perhaps this was the biggest challenge in sanitizing the data correctly. 
+* Perhaps the biggest challenge in sanitizing the data correctly. 
   The Udacity data for each of center/left/right cameras was ~8K. That totals to ~24K when using the left/right for recovery.
 * A majority of the data had a 0 steering angle bias. So the need to augment data containing more turns was imperative so that the model performed well for all road layouts.
 
@@ -240,7 +247,8 @@ Some key data transformations/augmentations performed were:
                 batch_X[i] = normalize_grayscale(batch_X[i])
                 batch_y[i] = y_train[choice]
 
-**Flipped Data along vertical axis Histogram: Symmetric But Unbalanced**
+**Flipped Data along vertical axis Histogram: Symmetric But Unbalanced to produce more data with non-trivial steering angles**
+![histogram_of_data_with_flips](https://cloud.githubusercontent.com/assets/16203244/23098489/1bfe1d78-f603-11e6-815f-e595759356e5.png)
 
 # Acknowledgements & References
 * **David Browne**, **Manav Kataria**, **Sameh Mohamed** and **Pierluigi Ferrari** - for constant discussions on the slack channel probing my ideas with questions, logic and providing useful directions.
