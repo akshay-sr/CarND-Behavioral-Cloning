@@ -25,7 +25,7 @@ Table of Contents
 Using Keras to make building deep neural networks for predicting autonomous steering angles.
 
 # Video of the car driving around the track
-This video shows the car driving around the track for the entire lap.
+This video shows the car driving around the track for the entire lap. It is recorded in "fastest" graphics setting on the simulator since my laptop that has low graphics capabilities.
 
 [![youtube_video](https://cloud.githubusercontent.com/assets/16203244/23098803/86778cd0-f60c-11e6-8290-cd4490119b86.png)](https://www.youtube.com/watch?v=wj1BPVsaHkI)
 
@@ -57,6 +57,8 @@ Using the Udacity provided simulator and my `drive.py` file, the car can be driv
 ```
 $ python drive.py model.h5
 ```
+Since my system is windows with low graphics capabilities, I've recorded and tested in graphics mode "fastest" on the simulator.
+In other graphics setting, my simulator doesn't behave as well since there are inherent delays in the relaying of steering commands and response. Please make sure to test the autonomous mode in "fastest" graphics setting.
 
 ## Comments inline with code
 
