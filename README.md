@@ -10,7 +10,7 @@ Table of Contents
       * [Comments inline with code](#comments-inline-with-code)
    * [Model Architecture &amp; Solution Design](#model-architecture--solution-design)
       * [Architecture: NVIDIA End-to-End Deep Learning Network](#architecture-nvidia-end-to-end-deep-learning-network)
-      * [Objective, Loss function and Hyper-Parameter tuning](#objective-loss-function-and-hyper-parameter-tuning)
+      * [Optimizer and loss metric](#optimizer-and-loss-metric)
       * [Controlling Overfitting](#controlling-overfitting)
       * [Image Preprocessing](#image-preprocessing)
       * [Steering Angle Preprocessing](#steering-angle-preprocessing)
@@ -98,14 +98,17 @@ Details of padding and sampling for each convolution layer is specified with det
 
 I use `ReLU` layers to introduce nonlinearity.
 
-## Objective, Loss function and Hyper-Parameter tuning
+## Optimizer and loss metric
 
 * I used `Mean Squared Error` as a loss metric. It seemed like the right choice as the goal is to minimize the steering angle predictions.
 * The training and validation loss seemed to reduce rapidly in the initial 2 epochs of batch size 64 over the entire sample set, to about 0.0443 training and about 0.0202 validation.
     However, the weights on the model wouldn't be able to predict angles for all the scenarios of driving, very well. I ended up using 256 samples over 7 epochs and ended up with 0.0413 training loss and 0.0178 validation loss.
     Anymore and the loss wouldn't be lowered very much. It is also important to ensure the training loss doesn't go very close to 0 as it could signify overfitting.
-* I used an [`Adam`] optimizer and the learning rate wasn't tuned manually. Due to second order moments, it performs better than RMSProp which seems to be the other option that could be used as an optimizer.
-* Adam has intrinsic benefits of RMSProp and hence is a better choice for this purpose.   
+* `Adam` optimizer was used and thus a learning rate wasn't tuned manually. The learning rate is modified inversely proportional to the square of the gradients accumulated via an exponentially weighted moving average. 
+* It is seen as a variant on the combination of RMSProp and momentum.
+* Since it includes bias corrections for the first and second order moments to account for their initializations at the origin, it is a popular choice. 
+* Although RMSProp incorporates the second-order momemtn estimate, it lacks the correction factor. 
+  This causes it to have high bias early in training.
 
 ## Controlling Overfitting
 
@@ -115,10 +118,31 @@ I use `ReLU` layers to introduce nonlinearity.
 
 ## Image Preprocessing
 
-* The Image data is [preprocessed] in the model using the following techniques:
-  * Resize to a smaller `WIDTH = 200`, `HEIGHT = 66` during the image loading stage using CV2
-  * Brightness adjustment towards darker transformation by operating in the HSV colorspace. So it required converting from RGB to HSV and back. 
-  * Normalization
+The Image data is preprocessed in the model using the following techniques:
+
+* Resize to a smaller `WIDTH = 200`, `HEIGHT = 66` during the image loading stage using CV2
+* Brightness adjustment towards darker transformation (0.5 and 1.0 with uniform random choosing) by operating in the HSV colorspace. So it required converting from RGB to HSV and back.
+  
+         # Generate random brightness function, produce darker transformation 
+        def brightness(image):
+            #Convert 2 HSV colorspace from RGB colorspace
+            hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+            #Generate new random brightness
+            rand = random.uniform(0.5,1.0)
+            hsv[:,:,2] = rand * hsv[:,:,2]
+            #Convert back to RGB colorspace
+            new_image = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+        return new_image
+
+* Normalize images to -0.5 to 0.5 range.
+
+        # Normalize the data features using Min-Max scaling
+        def normalize_min_max(image):
+            a = -0.5
+            b = 0.5
+            image_min = image.min()
+            image_max = image.max()
+        return a + (((image - image_min) * (b - a))/ (image_max - image_min))
 
 ## Steering Angle Preprocessing
 The steering angles were dithered by a static offset on left/right camerae images that were close to 0, as this provided for correction on left/right images when the car is driving straight.
@@ -230,30 +254,6 @@ Some key data transformations/augmentations performed were:
                 batch_X[i] = brightness(X_train[choice])            
                 batch_X[i] = normalize_grayscale(batch_X[i])
                 batch_y[i] = y_train[choice]
-
-4. Brightness adjust between 0.5 and 1.0 with uniform random choosing, to adjust for a darker transformation.
-
-        # Generate random brightness function, produce darker transformation 
-        def brightness(image):
-            #Convert 2 HSV colorspace from RGB colorspace
-            hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
-            #Generate new random brightness
-            rand = random.uniform(0.5,1.0)
-            hsv[:,:,2] = rand * hsv[:,:,2]
-            #Convert back to RGB colorspace
-            new_image = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
-        return new_image
-5. Normalize images to -0.5 to 0.5 range.
-
-        # Normalize the data features using Min-Max scaling
-        def normalize_min_max(image):
-            a = -0.5
-            b = 0.5
-            image_min = image.min()
-            image_max = image.max()
-        return a + (((image - image_min) * (b - a))/ (image_max - image_min))
-
-6. Nvidia arch with input images resized to 66x200 and using ReLu activation and dropout.
 
 **Flipped Data along vertical axis Histogram: Symmetric But Unbalanced**
 
