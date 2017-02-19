@@ -235,7 +235,7 @@ Some key data transformations/augmentations performed were:
                     batch_X[i] = horizontal_translation(batch_X[i], -pixels)
                     batch_y[i] = batch_y[i] + angle
 
-3. Remove bias towards selecting small angles by adding a bias term and threshold like this.
+4. Remove bias towards selecting small angles by adding a bias term and threshold like this.
   Ofcourse there is a probability of reselcting a low steering angle data combination.
   However, we're banking on the probability of the random choice dissuading us from such a selection. 
   
@@ -248,6 +248,7 @@ Some key data transformations/augmentations performed were:
                 batch_y[i] = y_train[choice]
 
 **Flipped Data along vertical axis Histogram: Symmetric But Unbalanced to produce more data with non-trivial steering angles**
+
 ![histogram_of_data_with_flips](https://cloud.githubusercontent.com/assets/16203244/23098489/1bfe1d78-f603-11e6-815f-e595759356e5.png)
 
 # Acknowledgements & References
