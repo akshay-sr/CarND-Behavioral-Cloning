@@ -43,6 +43,7 @@ My project includes the following files:
 * `model.py` - the main script to create and train the model
 * `drive.py` - the script making steering angle predictions and feeding it to the simulator, thus enabling driving the car in autonomous mode. 
 * `model.h5` - a trained convolution neural network with weights.
+* `model.ipynb` - A python notebook that of model.py that can be run on jupyter.
 * `README.md` - description of the development process (this file)
 * video_48fps.mp4 - a recording of the car driving around track 1 in autonmous mode at 48 fps
 * video_60fps.mp4 - a recording of the car driving around track 1 in autonmous mode at 60 fps
