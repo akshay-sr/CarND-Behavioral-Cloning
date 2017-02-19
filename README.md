@@ -27,6 +27,8 @@ Using Keras to make building deep neural networks for predicting autonomous stee
 # Video of the car driving around the track
 This video shows the car driving around the track for the entire lap.
 
+[![youtube_video](https://cloud.githubusercontent.com/assets/16203244/23098803/86778cd0-f60c-11e6-8290-cd4490119b86.png)](https://www.youtube.com/watch?v=wj1BPVsaHkI)
+
 ---
 # Goal
 
