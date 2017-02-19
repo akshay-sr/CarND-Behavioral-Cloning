@@ -9,7 +9,7 @@ Table of Contents
       * [Functional Code](#functional-code)
       * [Comments inline with code](#comments-inline-with-code)
    * [Model Architecture &amp; Solution Design](#model-architecture--solution-design)
-      * [Architecture: nVidia End-to-End Deep Learning Network](#architecture-nvidia-end-to-end-deep-learning-network)
+      * [Architecture: NVIDIA End-to-End Deep Learning Network](#architecture-nvidia-end-to-end-deep-learning-network)
       * [Objective, Loss function and Hyper-Parameter tuning](#objective-loss-function-and-hyper-parameter-tuning)
       * [Controlling Overfitting](#controlling-overfitting)
       * [Image Preprocessing](#image-preprocessing)
@@ -62,7 +62,8 @@ The `model.py` file contains the entire code with appropriate comments for train
 
 ## Architecture: NVIDIA End-to-End Deep Learning Network
 
-My model consists of a convolution neural network with 
+The model consists of a convolution neural network based on architecture by ![NVIDIA](https://arxiv.org/pdf/1604.07316v1.pdf)
+Namely,
 
 * 5x5 filters. Three of them with depths of 24, 36, 48.
 * Followed by two 3x3 filtes of depth 64 and 64.
