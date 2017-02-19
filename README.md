@@ -216,19 +216,6 @@ Some key data transformations/augmentations performed were:
 
 3. In the input sample/target batch generator, I add additional translation (based on a probability of 70% of low steering angle images) and correspondingly dither the steering angle (for 99 pixels translation, I dither by 0.3 using CV2's warpAffine for this).
 
-        while (i < batch_size):
-            choice = np.random.choice(len(X_train))
-            batch_X[i] = brightness(X_train[choice])            
-            batch_X[i] = normalize_min_max(batch_X[i])
-            batch_y[i] = y_train[choice]
-
-            # Remove bias towards small angles with a bias term and threshold, by reselecting
-            threshold = np.random.uniform(0.1,0.2)
-            if ((abs(batch_y[i]) + STATIC_BIAS) < threshold):
-                choice = np.random.choice(len(X_train))
-                batch_X[i] = brightness(X_train[choice])            
-                batch_X[i] = normalize_grayscale(batch_X[i])
-                batch_y[i] = y_train[choice]
             # Apply horizontal translation to low steering angles (< 0.1) to 70% of qualified images
             translate_prob = np.random.uniform(0,1)
             if (abs(batch_y[i]) < 0.1 and translate_prob >= 0.3):
@@ -240,8 +227,6 @@ Some key data transformations/augmentations performed were:
                 else:
                     batch_X[i] = horizontal_translation(batch_X[i], -pixels)
                     batch_y[i] = batch_y[i] + angle
-            i = i + 1
-        yield (batch_X, batch_y)
 
 3. Remove bias towards selecting small angles by adding a bias term and threshold like this.
   Ofcourse there is a probability of reselcting a low steering angle data combination.
