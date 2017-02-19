@@ -16,7 +16,7 @@ Table of Contents
       * [Steering Angle Preprocessing](#steering-angle-preprocessing)
    * [Training Strategy](#training-strategy)
       * [Building an initial Model with data with key insights ](#building-an-overfitted-model-with-key-insights)
-      * [Data augmentation for balancing the set](#data-augmentation-for-balancing-the-set)
+      * [Data augmentation for steering recovery](#data-augmentation-for-steering-recovery)
    * [Acknowledgements &amp; References](#acknowledgements--references)
 
 ---
@@ -193,7 +193,7 @@ Example of images I used are as follows:
 
 ![left_2017_02_09_10_16_15_383](https://cloud.githubusercontent.com/assets/16203244/23098490/1bfe2a16-f603-11e6-8a53-7c1c46bdd8f5.jpg)
 
-## Data augmentation for balancing the set
+## Data augmentation for steering recovery
 * Perhaps the biggest challenge in sanitizing the data correctly. 
   The Udacity data for each of center/left/right cameras was ~8K. That totals to ~24K when using the left/right for recovery.
 * A majority of the data had a 0 steering angle bias. So the need to augment data containing more turns was imperative so that the model performed well for all road layouts.
@@ -255,7 +255,7 @@ Some key data transformations/augmentations performed were:
                 batch_X[i] = normalize_grayscale(batch_X[i])
                 batch_y[i] = y_train[choice]
 
-**Flipped Data along vertical axis Histogram: Symmetric But Unbalanced to produce more data with non-trivial steering angles**
+**Flipped Data along vertical axis Histogram: Symmetric with lots of 0 degree steering angles modified to produce more data with non-trivial steering angles**
 
 ![histogram_of_data_with_flips](https://cloud.githubusercontent.com/assets/16203244/23098489/1bfe1d78-f603-11e6-815f-e595759356e5.png)
 
