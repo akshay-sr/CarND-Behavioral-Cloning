@@ -160,8 +160,64 @@ Example of images I used are as follows:
 
 Some key data transformations/augmentations performed were:
 
-1. Flipping of left/right camera images corresponding to 0 degree steering, after dithering them by 0.2 to avoid bias driving straight.
-2. In the input sample/target batch generator, I add additional translation (based on a probability of 70% of low steering angle images) and correspondingly dither the steering angle (for 99 pixels translation, I dither by 0.3 using CV2's warpAffine for this.
+1. Adding a steering dither for correction on images to avoid bias in driving straight.
+
+        # Input pre-processing step - dither the left and right steering angles by a small amount for recovery
+        STEERING_DITHER = 0.2
+
+        ## Additional training data at the turns - Left image's steering angle dither by 0.2
+        y_train_turns[1::3] = [x + STEERING_DITHER for x in y_train_turns[1::3]]
+
+        ## Additional training data at the turns - Right image's steering angle dither by 0.2
+        y_train_turns[2::3] = [x - STEERING_DITHER for x in y_train_turns[2::3]]
+        
+        ## Original Udacity training data - Dither the right camera image steering angle by 0.2, for 0 steering angle inputs
+        y_train[2::3] = [x - STEERING_DITHER * (x == 0) for x in y_train[2::3]]
+
+        ## Original Udacity training data - Dither the left camera image steering angle by 0.2, for 0 steering angle inputs
+        y_train[1::3] = [x + STEERING_DITHER * (x == 0) for x in y_train[1::3]]
+
+2. Flipping of left/right camera images and angles to produce more balanced data, on low angle of steering samples.
+
+        X_train_turns_flipped[0::2] = [np.fliplr(x) for x in X_train_turns[1::3]]
+        X_train_turns_flipped[1::2] = [np.fliplr(x) for x in X_train_turns[2::3]]
+        y_train_turns_flipped[0::2] = [x* (-1) for x in y_train_turns[1::3]]
+        y_train_turns_flipped[1::2] = [x* (-1) for x in y_train_turns[2::3]]
+
+        X_train_flipped[0::2] = [np.fliplr(x) for x in X_train[1::3]]
+        X_train_flipped[1::2] = [np.fliplr(x) for x in X_train[2::3]]
+        y_train_flipped[0::2] = [x* (-1) for x in y_train[1::3]]
+        y_train_flipped[1::2] = [x* (-1) for x in y_train[2::3]]
+
+3. In the input sample/target batch generator, I add additional translation (based on a probability of 70% of low steering angle images) and correspondingly dither the steering angle (for 99 pixels translation, I dither by 0.3 using CV2's warpAffine for this).
+
+        while (i < batch_size):
+            choice = np.random.choice(len(X_train))
+            batch_X[i] = brightness(X_train[choice])            
+            batch_X[i] = normalize_min_max(batch_X[i])
+            batch_y[i] = y_train[choice]
+
+            # Remove bias towards small angles with a bias term and threshold, by reselecting
+            threshold = np.random.uniform(0.1,0.2)
+            if ((abs(batch_y[i]) + STATIC_BIAS) < threshold):
+                choice = np.random.choice(len(X_train))
+                batch_X[i] = brightness(X_train[choice])            
+                batch_X[i] = normalize_grayscale(batch_X[i])
+                batch_y[i] = y_train[choice]
+            # Apply horizontal translation to low steering angles (< 0.1) to 70% of qualified images
+            translate_prob = np.random.uniform(0,1)
+            if (abs(batch_y[i]) < 0.1 and translate_prob >= 0.3):
+                angle = np.random.uniform(0,1)
+                pixels = int((TRANSLATION_X_RANGE * angle)/TRANSLATION_Y_RANGE)
+                if (batch_y[i] > 0):
+                    batch_X[i] = horizontal_translation(batch_X[i], pixels)
+                    batch_y[i] = batch_y[i] - angle
+                else:
+                    batch_X[i] = horizontal_translation(batch_X[i], -pixels)
+                    batch_y[i] = batch_y[i] + angle
+            i = i + 1
+        yield (batch_X, batch_y)
+
 3. Remove bias towards selecting small angles by adding a bias term and threshold like this.
   Ofcourse there is a probability of reselcting a low steering angle data combination.
   However, we're banking on the probability of the random choice dissuading us from such a selection. 
@@ -175,7 +231,27 @@ Some key data transformations/augmentations performed were:
                 batch_y[i] = y_train[choice]
 
 4. Brightness adjust between 0.5 and 1.0 with uniform random choosing, to adjust for a darker transformation.
+
+        # Generate random brightness function, produce darker transformation 
+        def brightness(image):
+            #Convert 2 HSV colorspace from RGB colorspace
+            hsv = cv2.cvtColor(image, cv2.COLOR_BGR2HSV)
+            #Generate new random brightness
+            rand = random.uniform(0.5,1.0)
+            hsv[:,:,2] = rand * hsv[:,:,2]
+            #Convert back to RGB colorspace
+            new_image = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
+        return new_image
 5. Normalize images to -0.5 to 0.5 range.
+
+        # Normalize the data features using Min-Max scaling
+        def normalize_min_max(image):
+            a = -0.5
+            b = 0.5
+            image_min = image.min()
+            image_max = image.max()
+        return a + (((image - image_min) * (b - a))/ (image_max - image_min))
+
 6. Nvidia arch with input images resized to 66x200 and using ReLu activation and dropout.
 
 **Flipped Data along vertical axis Histogram: Symmetric But Unbalanced**
