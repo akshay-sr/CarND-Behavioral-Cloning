@@ -208,9 +208,10 @@ def normalize_min_max(image):
 
 # ### Add brightness adjustment, flip along y-axis and remove bias towards 0 angles
 
-# In[8]:
+# In[13]:
 
 import random
+from sklearn.utils import shuffle
 
 STATIC_BIAS = 0.1
 TRANSLATION_X_RANGE = 99
@@ -259,7 +260,7 @@ def myTrainGenerator(batch_size):
             if ((abs(batch_y[i]) + STATIC_BIAS) < threshold):
                 choice = np.random.choice(len(X_train))
                 batch_X[i] = brightness(X_train[choice])            
-                batch_X[i] = normalize_grayscale(batch_X[i])
+                batch_X[i] = normalize_min_max(batch_X[i])
                 batch_y[i] = y_train[choice]
             # Apply horizontal translation to low steering angles (< 0.1) to 70% of qualified images
             translate_prob = np.random.uniform(0,1)
@@ -286,7 +287,7 @@ def myValidationGenerator(X_validation, y_validation, batch_size):
             choice = np.random.choice(len(X_val))
             batch_X[i] = X_val[choice]
             batch_X[i] = brightness(X_val[choice])  
-            batch_X[i] = normalize_grayscale(batch_X[i])
+            batch_X[i] = normalize_min_max(batch_X[i])
             batch_y[i] = y_val[choice]
         yield (batch_X, batch_y)
 
@@ -331,7 +332,7 @@ print('Validation data generated and normalized')
 # 1. Construct the network with Dropout, as the network tends to be overfit with large amounts of training and augmented data.
 # 2. Add a dropout layers after the pooling layers. Set the dropout rate to 50%.
 
-# In[9]:
+# In[14]:
 
 # Construct the network and add dropout after the pooling layer.
 from keras.models import Sequential
@@ -384,7 +385,7 @@ print ('Network created')
 # 1. Compile the network using adam optimizer and MSE loss function.
 # 2. Train the network for 7 epochs to avoid underfitting and to get better loss as the training data is augmented.
 
-# In[10]:
+# In[15]:
 
 # Compile and train the model
 model.compile(optimizer='adam', loss='mse')
@@ -408,14 +409,16 @@ print('Training completed')
 # # Save the model and weights
 # 
 # Model architecture to be saved in model.json
+# 
 # Model weights to be saved in model.h5
+# 
 # OR
+# 
 # Model architecture and weights compiled and saved in model.h5
 
-# In[11]:
+# In[16]:
 
-
-# serialize model arch to JSON
+# serialize model to JSON
 #model_json = model.to_json()
 #with open("model.json", "w") as json_file:
     #json_file.write(model_json)
@@ -426,4 +429,9 @@ print('Training completed')
 # serialize compiled model arch and weights in HDF5
 model.save('model.h5') 
 print("Saved model to disk")
+
+
+# In[ ]:
+
+
 
