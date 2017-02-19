@@ -44,6 +44,8 @@ My project includes the following files:
 * `drive.py` - the script making steering angle predictions and feeding it to the simulator, thus enabling driving the car in autonomous mode. 
 * `model.h5` - a trained convolution neural network with weights.
 * `README.md` - description of the development process (this file)
+* video_48fps.mp4 - a recording of the car driving around track 1 in autonmous mode at 48 fps
+* video_60fps.mp4 - a recording of the car driving around track 1 in autonmous mode at 60 fps
 * Udacity Dataset - Track1 Dataset Used for Training. [Download here](https://d17h27t6h515a5.cloudfront.net/topher/2016/December/584f6edd_data/data.zip)
 * Unity3D Simulator - [Github Repo](https://github.com/udacity/self-driving-car-sim).
 
