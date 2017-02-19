@@ -145,7 +145,8 @@ The Image data is preprocessed in the model using the following techniques:
             new_image = cv2.cvtColor(hsv, cv2.COLOR_HSV2BGR)
         return new_image
 
-* Normalize images to -0.5 to 0.5 range.
+* Normalize images to -0.5 to 0.5 range. 
+ Normalization helps in the optimizer converging quicker during gradient calculations for the weight updates.  
 
         # Normalize the data features using Min-Max scaling
         def normalize_min_max(image):
