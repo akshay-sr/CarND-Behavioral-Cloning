@@ -11,7 +11,7 @@ Table of Contents
    * [Model Architecture &amp; Solution Design](#model-architecture--solution-design)
       * [Architecture: NVIDIA End-to-End Deep Learning Network](#architecture-nvidia-end-to-end-deep-learning-network)
       * [Optimizer and loss metric](#optimizer-and-loss-metric)
-      * [Controlling Overfitting](#controlling-overfitting)
+      * [Regularization](#regularization)
       * [Image Preprocessing](#image-preprocessing)
       * [Steering Angle Preprocessing](#steering-angle-preprocessing)
    * [Training Strategy](#training-strategy)
@@ -113,7 +113,7 @@ I use `ReLU` layers to introduce nonlinearity.
 * Although RMSProp incorporates the second-order momemtn estimate, it lacks the correction factor. 
   This causes it to have high bias early in training.
 
-## Controlling Overfitting
+## Regularization
 
 * I used Dropout to prevent overfitting after all the max pooling layers. The Dropout was set to 50%.
 * Reducing bias towards lower steering angles so that the model learned to make sharp turns effectively.
