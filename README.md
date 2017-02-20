@@ -165,6 +165,10 @@ The steering angles were dithered by a static offset on left/right camerae image
 * I trained the model initially using ImageDataGenerator that performs custom image transformations such as shearing, rotation, translation.
   However, while this trained the network to drive straight, I couldn't get it to turn around the sharper curves/corners.
   Or sometime even gradual curves would mess the steering maneuvers.
+* Interpretation oft the steering angle in the entire dataset. s=0 have the highest occurence: more than 20 times the frequency of other angle values. Steering angles around the value of zero will be much more frequent that steeper turns, since roads are more often than not straight.
+* Furthermore, there are more positive (1900 counts) than negative angle values (1775 counts).
+* The frequency decreases with increasing steering angle value. For |s| > 0.5rad, the counts are negligible.
+
 * I'd get a good loss of about 0.0162, but autonmous driving wouldn't be per expectations.
   Reason being Keras' ImageDataGenerator doesn't provide a method to dither/modify the target outputs (steering angles) appropriately as it does to the images.
 * That forced me to resort to writing my own data generator and have control over modifying the steering angles as well.
