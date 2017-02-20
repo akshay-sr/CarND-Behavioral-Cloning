@@ -70,7 +70,8 @@ The `model.py` file contains the entire code with appropriate comments for train
 
 ## Architecture: NVIDIA End-to-End Deep Learning Network
 
-The model consists of a convolution neural network based on architecture by ![NVIDIA](https://arxiv.org/pdf/1604.07316v1.pdf)
+The model consists of a convolution neural network based on architecture by [NVIDIA Deep Learning Architecture.pdf](https://github.com/akshay-sr/CarND-Behavioral-Cloning/files/788218/NVIDIA.Deep.Learning.Architecture.pdf)
+
 Namely,
 
 * 5x5 filters. Three of them with depths of 24, 36, 48.
@@ -273,3 +274,5 @@ Some key data transformations/augmentations performed were:
 # Acknowledgements & References
 * **David Browne**, **Manav Kataria**, **Sameh Mohamed** and **Pierluigi Ferrari** - for constant discussions on the slack channel probing my ideas with questions, logic and providing useful directions.
 * **Paul Hearty** - for invaluable [project tips](https://carnd-forums.udacity.com/questions/26214464/behavioral-cloning-cheatsheet) provided on Udacity forums that saved a lot of time
+* **NVIDIA Deep Learning End to End Network** - for an amazing [network architecture](https://github.com/akshay-sr/CarND-Behavioral-Cloning/files/788218/NVIDIA.Deep.Learning.Architecture.pdf)
+
