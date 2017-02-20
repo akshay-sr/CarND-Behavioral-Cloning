@@ -168,7 +168,7 @@ The steering angles were dithered by a static offset on left/right camerae image
 * Interpretation oft the steering angle in the entire dataset. s=0 have the highest occurence: more than 20 times the frequency of other angle values. Steering angles around the value of zero will be much more frequent that steeper turns, since roads are more often than not straight.
 * Furthermore, there are more positive (1900 counts) than negative angle values (1775 counts).
 * The frequency decreases with increasing steering angle value. For |s| > 0.5rad, the counts are negligible.
-
+![original_hist](https://cloud.githubusercontent.com/assets/16203244/23136937/1422c2f0-f754-11e6-8d5c-8d7303651f65.png)
 * I'd get a good loss of about 0.0162, but autonmous driving wouldn't be per expectations.
   Reason being Keras' ImageDataGenerator doesn't provide a method to dither/modify the target outputs (steering angles) appropriately as it does to the images.
 * That forced me to resort to writing my own data generator and have control over modifying the steering angles as well.
@@ -202,6 +202,12 @@ Example of images I used are as follows:
 * Perhaps the biggest challenge in sanitizing the data correctly. 
   The Udacity data for each of center/left/right cameras was ~8K. That totals to ~24K when using the left/right for recovery.
 * A majority of the data had a 0 steering angle bias. So the need to augment data containing more turns was imperative so that the model performed well for all road layouts.
+![angle_distribution_original](https://cloud.githubusercontent.com/assets/16203244/23136936/142287fe-f754-11e6-9895-9d9a45724ca4.png)
+
+* The straight angle (zero degree) has far more chance feeding into model, where the real turn looks becomes very minor to system.
+* It becomes evident that it will be necessary to balance this dataset prior its use. If we use the data without further processing, the model would predict new steering angles with a very strong bias towards going straight, which would become problematic when turning.
+* The adopted solution may involve defining a range of steering ranges around 0 that will be sampled with reduced frequency compared to the rest of steering angle values.
+* By careful selection of both the steering angles range and the frequency of sampling, the distribution of steering angle values will be much more suitable for training our network.
 
 Some key data transformations/augmentations performed were:
 
