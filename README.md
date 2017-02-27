@@ -22,7 +22,7 @@ Table of Contents
 ---
 
 # Behavioral Cloning
-Using Keras to make building deep neural networks for predicting autonomous steering angles.
+Using Keras to build deep neural networks for predicting autonomous steering angles.
 
 # Video of the car driving around the track
 This video shows the car driving around the track for the entire lap. It is recorded in "fastest" graphics setting on the simulator since my laptop that has low graphics capabilities.
@@ -78,7 +78,7 @@ Namely,
 * Followed by two 3x3 filtes of depth 64 and 64.
 * And then finally flattening the output and reducing the dimensionality via fully-connected dense layers to a steering angle prediction.
 
-Details of padding and sampling for each convolution layer is specified with detailed comments in code. They consist of:
+Details of padding and sampling for each convolution layer is specified with detailed comments in code. Summarizing them here:
 
 1. Set the first layer to a Convolution2D layer with 5x5 kernel, input_shape set to (66, 200, 3) and subsample to (1,1)
 2. Use a MaxPooling2D layer that subsamples by (2,2) after the previous convolution.
@@ -109,18 +109,18 @@ I use `ReLU` layers to introduce nonlinearity.
 
 ## Optimizer and loss metric
 
-* I used `Mean Squared Error` as a loss metric. It seemed like the right choice as the goal is to minimize the steering angle predictions.
+* I used `Mean Squared Error` as a loss metric. It seemed like the right choice as the goal is to minimize the error in steering angle predictions.
 * The training and validation loss seemed to reduce rapidly in the initial 2 epochs of batch size 64 over the entire sample set, to about 0.0443 training and about 0.0202 validation.
-    However, the weights on the model wouldn't be able to predict angles for all the scenarios of driving, very well. I ended up using 256 samples over 7 epochs and ended up with 0.0413 training loss and 0.0178 validation loss.
+    However, the weights on the model wouldn't be able to predict angles for all the scenarios of driving, very well. I ended up using a batch size of 256 samples over 7 epochs over the entire training set, and ended up with 0.0413 training loss and 0.0178 validation loss.
 
 ![network_training_summary](https://cloud.githubusercontent.com/assets/16203244/23098491/1bff0d14-f603-11e6-8149-7351531a838c.png)
 
-* Anymore and the loss wouldn't be lowered very much. It is also important to ensure the training loss doesn't go very close to 0 as it could signify overfitting.
+* Anymore number of epochs, and the lowering of loss would hardly be noticeable. It is also important to ensure the training loss doesn't go very close to 0 as it could signify overfitting.
 * `Adam` optimizer was used and thus a learning rate wasn't tuned manually. The learning rate is modified inversely proportional to the square of the gradients accumulated via an exponentially weighted moving average. 
 * It is seen as a variant on the combination of RMSProp and momentum.
 * Since it includes bias corrections for the first and second order moments to account for their initializations at the origin, it is a popular choice. 
-* Although RMSProp incorporates the second-order momemtn estimate, it lacks the correction factor. 
-  This causes it to have high bias early in training.
+* Although RMSProp incorporates the second-order momemt estimate, it lacks the correction factor. 
+  This causes it to have high bias early on in the training.
 
 ## Regularization
 
@@ -158,7 +158,7 @@ The Image data is preprocessed in the model using the following techniques:
         return a + (((image - image_min) * (b - a))/ (image_max - image_min))
 
 ## Steering Angle Preprocessing
-The steering angles were dithered by a static offset on left/right camerae images that were close to 0, as this provided for correction on left/right images when the car is driving straight.
+The steering angles were dithered by a static offset on left/right camera images that were close to 0, as this provided for correction on left/right images when the car is driving straight.
 
 # Training Strategy
 
@@ -166,7 +166,7 @@ The steering angles were dithered by a static offset on left/right camerae image
 * I trained the model initially using ImageDataGenerator that performs custom image transformations such as shearing, rotation, translation.
   However, while this trained the network to drive straight, I couldn't get it to turn around the sharper curves/corners.
   Or sometime even gradual curves would mess the steering maneuvers.
-* Interpretation oft the steering angle in the entire dataset. s=0 have the highest occurence: more than 20 times the frequency of other angle values. Steering angles around the value of zero will be much more frequent that steeper turns, since roads are more often than not straight.
+* Interpretation of the steering angle in the entire dataset. s=0 have the highest occurence: more than 20 times the frequency of other angle values. Steering angles around the value of zero will be much more frequent that steeper turns, since roads are more often than not straight.
 * Furthermore, there are more positive (1900 counts) than negative angle values (1775 counts).
 * The frequency decreases with increasing steering angle value. For |s| > 0.5rad, the counts are negligible.
 ![original_hist](https://cloud.githubusercontent.com/assets/16203244/23136937/1422c2f0-f754-11e6-8d5c-8d7303651f65.png)
@@ -200,13 +200,13 @@ Example of images I used are as follows:
 ![left_2017_02_09_10_16_15_383](https://cloud.githubusercontent.com/assets/16203244/23098490/1bfe2a16-f603-11e6-8a53-7c1c46bdd8f5.jpg)
 
 ## Data augmentation for steering recovery
-* Perhaps the biggest challenge in sanitizing the data correctly. 
+* Perhaps the biggest challenge is in sanitizing the data correctly. 
   The Udacity data for each of center/left/right cameras was ~8K. That totals to ~24K when using the left/right for recovery.
 * A majority of the data had a 0 steering angle bias. So the need to augment data containing more turns was imperative so that the model performed well for all road layouts.
 ![angle_distribution_original](https://cloud.githubusercontent.com/assets/16203244/23136936/142287fe-f754-11e6-9895-9d9a45724ca4.png)
 
-* The straight angle (zero degree) has far more chance feeding into model, where the real turn looks becomes very minor to system.
-* It becomes evident that it will be necessary to balance this dataset prior its use. If we use the data without further processing, the model would predict new steering angles with a very strong bias towards going straight, which would become problematic when turning.
+* The straight angle (zero degree) has a far greater chance feeding into model, tending to dwarf sharper turns to a minor population.
+* It becomes evident that it will be necessary to balance this dataset prior to it's use. If we use the data without further processing, the model would predict new steering angles with a very strong bias towards going straight, which would become problematic when turning.
 * The adopted solution may involve defining a range of steering ranges around 0 that will be sampled with reduced frequency compared to the rest of steering angle values.
 * By careful selection of both the steering angles range and the frequency of sampling, the distribution of steering angle values will be much more suitable for training our network.
 
